@@ -1,0 +1,12 @@
+FROM pihole/pihole:latest
+
+# create fifos
+ADD 10-create-fifo.sh /etc/cont-init.d/
+# create services to read fifos et write to files
+ADD run-lighttpd-access-stdout /etc/services.d/lighttpd-access-log/run
+ADD run-lighttpd-error-stderr /etc/services.d/lighttpd-error-log/run
+# redirect lighttpd accesslog and errorlog to fifos lighthttpd cannot use /dev/stdout https://redmine.lighttpd.net/issues/2731
+RUN echo "sed -i 's#server.errorlog.*#server.errorlog=\"/var/run/s6/lighttpd-error-log-fifo\"#g' /etc/lighttpd/lighttpd.conf" >>/start.sh && \
+  echo "sed -i 's#accesslog.filename.*#accesslog.filename=\"/var/run/s6/lighttpd-access-log-fifo\"#g' /etc/lighttpd/lighttpd.conf" >>/start.sh && \
+  echo "grep -E \"(accesslog.filename|server.errorlog)\" /etc/lighttpd/lighttpd.conf" >>/start.sh && \
+  echo "chown www-data: /etc/pihole/setupVars.conf" >>/start.sh
