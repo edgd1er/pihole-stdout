@@ -24,7 +24,7 @@ jobs:
           echo "${{secrets.DOCKER_PASSWORD}}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
       - name: Run Buildx
         run: |
-          docker buildx build --output "type=image,push=false" --platform linux/arm/v7,linux/amd64  -f Dockerfile.std -t edgd1er/pihole-stdout:latest .
+          docker buildx build --output "type=image,push=false" --platform linux/arm/v7,linux/amd64  -f build/Dockerfile.std -t edgd1er/pihole-stdout:latest build/
       - name: clean
         if: always() && github.event_name != 'pull_request'
         run: |
